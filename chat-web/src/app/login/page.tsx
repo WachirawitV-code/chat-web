@@ -1,31 +1,65 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import "./login.css"
+import { UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
-import "./login.css";
 
 const loginPage = () => {
-  type FieldType = {
+  type Members = {
     id: number;
     user_name: string;
     chatroom_id?: number;
   };
 
-  return (
-    <main>
-      <div>
-        <Form
-          name="basic"
-          style={{ maxWidth: 400 }}
-        >
-          <small>Chat bot</small>
-          <Form.Item<FieldType>
-            label="Username"
-            name="user_name"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input placeholder="Create username..." />
-          </Form.Item>
+  const [userName, setUserName] = useState<string>("");
 
+  const [users, setUsers] = useState<Array<Members>>(() => {
+    const saveTasks = localStorage.getItem("USERS");
+    if (saveTasks) {
+      return JSON.parse(saveTasks);
+    } else {
+      return [];
+    }
+  });
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log(`e.target.value : ${event.target.value}`);
+    setUserName(event.target.value);
+  }
+
+  function handleFormSubmit() {
+    const userNameFromUsers = localStorage.getItem("USERS");
+    console.log(userNameFromUsers)
+    if (userName !== "") {
+      const newObj = { id: Math.random(), user_name: userName };
+      setUsers([...users, newObj]);
+      setUserName("");
+    }
+  }
+
+  // Save Value to local Storage
+  useEffect(() => {
+    // JS object to string
+    localStorage.setItem("USERS", JSON.stringify(users));
+    //state
+  }, [users]);
+
+  return (
+    <section>
+      <div className="form-container">
+        <h2>Chat bot</h2>
+        <Form onFinish={handleFormSubmit}>
+          <Form.Item
+            name="user_name"
+            label="Username"
+            rules={[{ required: true, message: "Please input your Username!" }]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              onChange={handleInputChange}
+              placeholder="Create username..."
+            />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
@@ -33,7 +67,7 @@ const loginPage = () => {
           </Form.Item>
         </Form>
       </div>
-    </main>
+    </section>
   );
 };
 
