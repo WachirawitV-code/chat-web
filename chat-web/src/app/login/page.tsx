@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import "./login.css"
+import "./login.css";
 import { UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
 
 const loginPage = () => {
   type Members = {
-    id: number;
     user_name: string;
     chatroom_id?: number;
   };
@@ -23,17 +22,32 @@ const loginPage = () => {
   });
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    console.log(`e.target.value : ${event.target.value}`);
+    // console.log(`e.target.value : ${event.target.value}`);
     setUserName(event.target.value);
   }
 
+  function adduser() {
+    const newObj = { user_name: userName };
+    setUsers([...users, newObj]);
+    setUserName("");
+    console.log("Complete add this name");
+  }
+
   function handleFormSubmit() {
-    const userNameFromUsers = localStorage.getItem("USERS");
-    console.log(userNameFromUsers)
-    if (userName !== "") {
-      const newObj = { id: Math.random(), user_name: userName };
-      setUsers([...users, newObj]);
-      setUserName("");
+    const dataFromUsers = localStorage.getItem("USERS");
+    // console.log(dataFromUsers);
+    if (dataFromUsers) {
+
+      const dataAllFromUsers = JSON.parse(dataFromUsers);
+      const userNameAllFromUsers = dataAllFromUsers.map(function (item: Members) {return item["user_name"];});
+      // console.log(userNameAllFromUsers);
+      if (userNameAllFromUsers.includes(userName)) {
+        console.log("Already use this name");
+      } else {
+        adduser();
+      }
+    } else {
+      adduser()
     }
   }
 
