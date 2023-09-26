@@ -1,14 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import "./login.css";
 import { UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
+import "./login.css";
+import { useRouter } from "next/navigation";
 
 const loginPage = () => {
   type Members = {
     user_name: string;
     chatroom_id?: number;
   };
+
+  const router = useRouter()
 
   const [userName, setUserName] = useState<string>("");
 
@@ -22,22 +25,17 @@ const loginPage = () => {
   });
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    // console.log(`e.target.value : ${event.target.value}`);
     setUserName(event.target.value);
   }
 
   function adduser() {
     const newObj = { user_name: userName };
     setUsers([...users, newObj]);
-    setUserName("");
-    console.log("Complete add this name");
   }
 
   function handleFormSubmit() {
     const dataFromUsers = localStorage.getItem("USERS");
-    // console.log(dataFromUsers);
     if (dataFromUsers) {
-
       const dataAllFromUsers = JSON.parse(dataFromUsers);
       const userNameAllFromUsers = dataAllFromUsers.map(function (item: Members) {return item["user_name"];});
       // console.log(userNameAllFromUsers);
@@ -49,17 +47,15 @@ const loginPage = () => {
     } else {
       adduser()
     }
+    router.push(`/${userName}/chat`);
   }
 
-  // Save Value to local Storage
   useEffect(() => {
-    // JS object to string
     localStorage.setItem("USERS", JSON.stringify(users));
-    //state
   }, [users]);
 
   return (
-    <section>
+    <div className="body-div">
       <div className="form-container">
         <h2>Chat bot</h2>
         <Form onFinish={handleFormSubmit}>
@@ -81,7 +77,7 @@ const loginPage = () => {
           </Form.Item>
         </Form>
       </div>
-    </section>
+    </div>
   );
 };
 
