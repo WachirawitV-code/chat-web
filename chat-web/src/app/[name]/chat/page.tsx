@@ -4,10 +4,11 @@ import { useRouter, usePathname } from "next/navigation";
 import "./chat.css";
 import { Layout, Menu, Button, Form, Input, Avatar, Popover } from "antd";
 import { getAnswer } from "../../components/fetch";
+import type { MenuProps } from "antd";
 
 const { Header, Content, Sider, Footer } = Layout;
 
-const Chatpage: React.FC = () => {
+export default function Chatpage({ params }: { params: { name: string } }) {
   type Chats = {
     id: number;
     chatroom_id?: number;
@@ -18,25 +19,32 @@ const Chatpage: React.FC = () => {
   type chatForm = {
     chat_text: string;
   };
+  type Params = {
+    name: string;
+  };
+  type MenuItem = Required<MenuProps>["items"][number];
 
   const pathname = usePathname();
   const router = useRouter();
   const [firstLoading, setFirstLoading] = useState<boolean>(true);
+  const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
   const [completeChat, setCompleteChat] = useState<Array<Chats>>([]);
 
-  const splitted = pathname.split("/", 2);
-  // const pathName:string = router.query
-  // console.log(router.);
-  const userNameFromParam = splitted.filter((value) => value !== "");
-  const userName = userNameFromParam.toString();
+  const userName:string = params.name;
 
   const text = <span>Logout</span>;
 
-  useEffect(() => {
-    const nameLocalStorage:string = `CHATS_${userName}`;
-    const oldChat = localStorage.getItem(nameLocalStorage);
-    console.log(oldChat);
+  const [form] = Form.useForm();
 
+  const items: MenuItem[] = [
+    getItem("Room 1", "room_1"),
+    getItem("Room 2", "room_2"),
+    getItem("Room 3", "room_3"),
+  ];
+
+  useEffect(() => {
+    const nameLocalStorage: string = `CHATS_${userName}`;
+    const oldChat = localStorage.getItem(nameLocalStorage);
     if (oldChat) {
       setCompleteChat(JSON.parse(oldChat));
     } else {
@@ -64,7 +72,26 @@ const Chatpage: React.FC = () => {
         });
       }
     }
+    return () => {
+      setComponentDisabled(false);
+    };
   }, [completeChat]);
+
+  function getItem(
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+    type?: "group"
+  ): MenuItem {
+    return {
+      key,
+      icon,
+      children,
+      label,
+      type,
+    } as MenuItem;
+  }
 
   function addChat(chat: string) {
     const newChat: Chats = {
@@ -76,11 +103,13 @@ const Chatpage: React.FC = () => {
   }
 
   function handleFormSubmit(data: chatForm) {
+    setComponentDisabled(true);
     const newChat = data.chat_text;
     addChat(newChat);
+    form.resetFields();
   }
 
-  function handleLogout(){
+  function handleLogout() {
     router.push(`/login`);
   }
 
@@ -107,22 +136,10 @@ const Chatpage: React.FC = () => {
       <Layout>
         <Sider theme="light" className="slider">
           <Menu
+            defaultSelectedKeys={["room_1"]}
+            defaultOpenKeys={["sub1"]}
             mode="inline"
-            defaultSelectedKeys={["1"]}
-            items={[
-              {
-                key: "1",
-                label: "Room 1",
-              },
-              {
-                key: "2",
-                label: "Room 2",
-              },
-              {
-                key: "3",
-                label: "Room 3",
-              },
-            ]}
+            items={items}
           />
         </Sider>
         <Layout>
@@ -156,7 +173,12 @@ const Chatpage: React.FC = () => {
             ))}
           </Content>
           <Footer className="footer">
-            <Form className="form" onFinish={handleFormSubmit}>
+            <Form
+              className="form"
+              onFinish={handleFormSubmit}
+              disabled={componentDisabled}
+              form={form}
+            >
               <div className="div-chatinput">
                 <Form.Item className="div-chatinput" name="chat_text">
                   <Input
@@ -182,4 +204,4 @@ const Chatpage: React.FC = () => {
   );
 };
 
-export default Chatpage;
+// export default Chatpage;
