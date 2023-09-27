@@ -10,10 +10,11 @@ const loginPage = () => {
     user_name: string;
     chatroom_id?: number;
   };
+  type userFrom = {
+    user_name: string;
+  };
 
   const router = useRouter()
-
-  const [userName, setUserName] = useState<string>("");
 
   const [users, setUsers] = useState<Array<Members>>(() => {
     const saveTasks = localStorage.getItem("USERS");
@@ -24,30 +25,27 @@ const loginPage = () => {
     }
   });
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setUserName(event.target.value);
-  }
-
-  function adduser() {
-    const newObj = { user_name: userName };
+  function adduser(name:string) {
+    const newObj = { user_name: name };
     setUsers([...users, newObj]);
   }
 
-  function handleFormSubmit() {
+  function handleFormSubmit(data:userFrom) {
+    const name = data.user_name;
     const dataFromUsers = localStorage.getItem("USERS");
     if (dataFromUsers) {
       const dataAllFromUsers = JSON.parse(dataFromUsers);
       const userNameAllFromUsers = dataAllFromUsers.map(function (item: Members) {return item["user_name"];});
       // console.log(userNameAllFromUsers);
-      if (userNameAllFromUsers.includes(userName)) {
+      if (userNameAllFromUsers.includes(name)) {
         console.log("Already use this name");
       } else {
-        adduser();
+        adduser(name);
       }
     } else {
-      adduser()
+      adduser(name);
     }
-    router.push(`/${userName}/chat`);
+    router.push(`/${name}/chat`);
   }
 
   useEffect(() => {
@@ -66,7 +64,6 @@ const loginPage = () => {
           >
             <Input
               prefix={<UserOutlined />}
-              onChange={handleInputChange}
               placeholder="Create username..."
             />
           </Form.Item>
