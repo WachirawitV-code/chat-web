@@ -37,7 +37,7 @@ export default function Chatpage({ params }: { params: { name: string } }) {
   const userID: string = params.name;
   const dataUsersFromStorage: any = localStorage.getItem("USERS");
   const dataUsers = JSON.parse(dataUsersFromStorage);
-  dataUsers.map(function (item: Members) {
+  dataUsers.map((item: Members) => {
     console.log(item["user_id"].toString());
     if (item["user_id"].toString() == userID) {
       console.log(`Username : ${item["user_name"]}`);
