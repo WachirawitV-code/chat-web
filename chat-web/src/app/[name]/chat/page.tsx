@@ -9,6 +9,11 @@ import type { MenuProps } from "antd";
 const { Header, Content, Sider, Footer } = Layout;
 
 export default function Chatpage({ params }: { params: { name: string } }) {
+  type Members = {
+    user_id: number;
+    user_name: string;
+    chatroom_id?: number;
+  };
   type Chats = {
     id: number;
     chatroom_id?: number;
@@ -19,9 +24,6 @@ export default function Chatpage({ params }: { params: { name: string } }) {
   type chatForm = {
     chat_text: string;
   };
-  type Params = {
-    name: string;
-  };
   type MenuItem = Required<MenuProps>["items"][number];
 
   const pathname = usePathname();
@@ -30,20 +32,28 @@ export default function Chatpage({ params }: { params: { name: string } }) {
   const [componentDisabled, setComponentDisabled] = useState<boolean>(false);
   const [completeChat, setCompleteChat] = useState<Array<Chats>>([]);
 
-  const userName:string = params.name;
+  // const [allUsers, setAllUsers] = useState<Array<Members>>([]);
+
+  const userID: string = params.name;
+  const dataUsersFromStorage: any = localStorage.getItem("USERS");
+  const dataUsers = JSON.parse(dataUsersFromStorage);
+  dataUsers.map(function (item: Members) {
+    console.log(item["user_id"].toString());
+    if (item["user_id"].toString() == userID) {
+      console.log(`Username : ${item["user_name"]}`);
+    }
+    return item["user_name"];
+  });
+  const userName = "Test";
 
   const text = <span>Logout</span>;
 
   const [form] = Form.useForm();
 
-  const items: MenuItem[] = [
-    getItem("Room 1", "room_1"),
-    getItem("Room 2", "room_2"),
-    getItem("Room 3", "room_3"),
-  ];
+  const [rooms, setRooms] = useState<string>("room_1");
 
   useEffect(() => {
-    const nameLocalStorage: string = `CHATS_${userName}`;
+    const nameLocalStorage: string = `CHATS_${userID}_${rooms}`;
     const oldChat = localStorage.getItem(nameLocalStorage);
     if (oldChat) {
       setCompleteChat(JSON.parse(oldChat));
@@ -54,8 +64,18 @@ export default function Chatpage({ params }: { params: { name: string } }) {
   }, []);
 
   useEffect(() => {
+    const nameLocalStorage: string = `CHATS_${userID}_${rooms}`;
+    const oldChat = localStorage.getItem(nameLocalStorage);
+    if (oldChat) {
+      setCompleteChat(JSON.parse(oldChat));
+    } else {
+      setCompleteChat([]);
+    }
+  }, [rooms]);
+
+  useEffect(() => {
     if (firstLoading === false) {
-      const nameLocalStorage: string = `CHATS_${userName}`;
+      const nameLocalStorage: string = `CHATS_${userID}_${rooms}`;
       localStorage.setItem(nameLocalStorage, JSON.stringify(completeChat));
       const lastChat = completeChat[completeChat.length - 1];
       // console.log(lastChat);
@@ -72,9 +92,7 @@ export default function Chatpage({ params }: { params: { name: string } }) {
         });
       }
     }
-    return () => {
-      setComponentDisabled(false);
-    };
+    setComponentDisabled(false);
   }, [completeChat]);
 
   function getItem(
@@ -113,6 +131,10 @@ export default function Chatpage({ params }: { params: { name: string } }) {
     router.push(`/login`);
   }
 
+  function handleChangeMenu(items?: any) {
+    setRooms(items.key);
+  }
+
   return (
     <Layout className="layout">
       <Header className="header">
@@ -135,12 +157,20 @@ export default function Chatpage({ params }: { params: { name: string } }) {
       </Header>
       <Layout>
         <Sider theme="light" className="slider">
-          <Menu
-            defaultSelectedKeys={["room_1"]}
-            defaultOpenKeys={["sub1"]}
-            mode="inline"
-            items={items}
-          />
+          <Menu mode="inline" defaultSelectedKeys={["room_1"]}>
+            <Menu.Item key="room_1" onClick={handleChangeMenu}>
+              <span>Room 1</span>
+            </Menu.Item>
+            <Menu.Item key="room_2" onClick={handleChangeMenu}>
+              <span>Room 2</span>
+            </Menu.Item>
+            <Menu.Item key="room_3" onClick={handleChangeMenu}>
+              <span>Room 3</span>
+            </Menu.Item>
+            <Menu.Item key="room_4" onClick={handleChangeMenu}>
+              <span>Friends</span>
+            </Menu.Item>
+          </Menu>
         </Sider>
         <Layout>
           <Content className="content">
@@ -154,18 +184,18 @@ export default function Chatpage({ params }: { params: { name: string } }) {
             </div>
             {completeChat.map((chat) => (
               <div>
-                {chat.user_name === "GPT" ? (
-                  <div key={chat.id}>
-                    <div className="chat-div-l">
-                      <Avatar size="large">GPT</Avatar>
-                      <small className="text-chat-l">{chat.chat}</small>
-                    </div>
-                  </div>
-                ) : (
+                {chat.user_name === userName ? (
                   <div key={chat.id}>
                     <div className="chat-div-r">
                       <small className="text-chat-r">{chat.chat}</small>
                       <Avatar size="large">{userName}</Avatar>
+                    </div>
+                  </div>
+                ) : (
+                  <div key={chat.id}>
+                    <div className="chat-div-l">
+                      <Avatar size="large">GPT</Avatar>
+                      <small className="text-chat-l">{chat.chat}</small>
                     </div>
                   </div>
                 )}
@@ -202,6 +232,6 @@ export default function Chatpage({ params }: { params: { name: string } }) {
       </Layout>
     </Layout>
   );
-};
+}
 
 // export default Chatpage;

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 const loginPage = () => {
   type Members = {
+    user_id: number;
     user_name: string;
     chatroom_id?: number;
   };
@@ -14,7 +15,7 @@ const loginPage = () => {
     user_name: string;
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
   const [users, setUsers] = useState<Array<Members>>(() => {
     const saveTasks = localStorage.getItem("USERS");
@@ -25,27 +26,37 @@ const loginPage = () => {
     }
   });
 
-  function adduser(name:string) {
-    const newObj = { user_name: name };
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log(`e.target.value : ${event.target.value}`);
+  }
+
+  function adduser(userID: number, name: string) {
+    const newObj = { user_id: userID, user_name: name };
     setUsers([...users, newObj]);
   }
 
-  function handleFormSubmit(data:userFrom) {
+  function handleFormSubmit(data: userFrom) {
     const name = data.user_name;
+    const userID = Math.random();
     const dataFromUsers = localStorage.getItem("USERS");
     if (dataFromUsers) {
       const dataAllFromUsers = JSON.parse(dataFromUsers);
-      const userNameAllFromUsers = dataAllFromUsers.map(function (item: Members) {return item["user_name"];});
-      // console.log(userNameAllFromUsers);
-      if (userNameAllFromUsers.includes(name)) {
-        console.log("Already use this name");
-      } else {
-        adduser(name);
-      }
+      dataAllFromUsers.map(function (
+        item: Members) {
+        if (item["user_name"] == name) {
+          console.log("Already use this name");
+          const userIdOld:string = item["user_id"].toString()
+          console.log(userIdOld)
+          router.push(`/${userIdOld}/chat`);
+        } else {
+          adduser(userID, name);
+          router.push(`/${userID}/chat`);
+        }
+      });
     } else {
-      adduser(name);
+      adduser(userID, name);
+      router.push(`/${userID}/chat`);
     }
-    router.push(`/${name}/chat`);
   }
 
   useEffect(() => {
@@ -64,6 +75,7 @@ const loginPage = () => {
           >
             <Input
               prefix={<UserOutlined />}
+              onChange={handleInputChange}
               placeholder="Create username..."
             />
           </Form.Item>
