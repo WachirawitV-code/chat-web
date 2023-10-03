@@ -1,56 +1,28 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input } from "antd";
 import "./login.css";
 import { useRouter } from "next/navigation";
+import { login } from "../components/fetch";
 
 const loginPage = () => {
-  type Members = {
-    user_name: string;
-    chatroom_id?: number;
-  };
+
   type userFrom = {
     user_name: string;
   };
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const [users, setUsers] = useState<Array<Members>>(() => {
-    const saveTasks = localStorage.getItem("USERS");
-    if (saveTasks) {
-      return JSON.parse(saveTasks);
-    } else {
-      return [];
-    }
-  });
-
-  function adduser(name:string) {
-    const newObj = { user_name: name };
-    setUsers([...users, newObj]);
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log(`e.target.value : ${event.target.value}`);
   }
-
-  function handleFormSubmit(data:userFrom) {
-    const name = data.user_name;
-    const dataFromUsers = localStorage.getItem("USERS");
-    if (dataFromUsers) {
-      const dataAllFromUsers = JSON.parse(dataFromUsers);
-      const userNameAllFromUsers = dataAllFromUsers.map(function (item: Members) {return item["user_name"];});
-      // console.log(userNameAllFromUsers);
-      if (userNameAllFromUsers.includes(name)) {
-        console.log("Already use this name");
-      } else {
-        adduser(name);
-      }
-    } else {
-      adduser(name);
-    }
-    router.push(`/${name}/chat`);
-  }
-
-  useEffect(() => {
-    localStorage.setItem("USERS", JSON.stringify(users));
-  }, [users]);
+  function handleFormSubmit(data: userFrom){
+    login(data).then((userAccount) => {
+      sessionStorage.setItem("USERS", JSON.stringify(userAccount));
+      router.push(`/chat`);
+    });
+  };
 
   return (
     <div className="body-div">
@@ -64,6 +36,7 @@ const loginPage = () => {
           >
             <Input
               prefix={<UserOutlined />}
+              onChange={handleInputChange}
               placeholder="Create username..."
             />
           </Form.Item>
