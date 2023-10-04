@@ -3,13 +3,17 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "./chat.css";
 import { Layout, Menu, Button, Form, Input, Avatar, Popover } from "antd";
-import { addChatAPI, getAllChatByRoomId, getAllRoom, getAnswer } from "../components/fetch";
+import {
+  addChatAPI,
+  getAllChatByRoomId,
+  getAllRoom,
+  getAnswer,
+} from "../components/fetch";
 import type { MenuProps } from "antd";
 
 const { Header, Content, Sider, Footer } = Layout;
 
 export default function Chatpage() {
-
   type Chats = {
     chat_id: string;
     room_id?: string;
@@ -33,12 +37,12 @@ export default function Chatpage() {
   const [rooms, setRooms] = useState<string>("");
   const [items, setItems] = useState<Array<MenuItem>>();
 
-  const Datauser:any = sessionStorage.getItem("USERS");
+  const Datauser: any = sessionStorage.getItem("USERS");
   const DatauserObject = JSON.parse(Datauser);
-  const userName:string = DatauserObject.user_name;
-  const userID:string = DatauserObject.user_id;
+  const userName: string = DatauserObject.user_name;
+  const userID: string = DatauserObject.user_id;
   const [form] = Form.useForm();
-  
+
   useEffect(() => {
     getAllRoom(userID).then((userRoom) => {
       const items: MenuItem[] = userRoom.map((room: any, index: any) => {
@@ -47,7 +51,7 @@ export default function Chatpage() {
         const item = getItem(roomName, roomId);
         return item;
       });
-      setItems(items)
+      setItems(items);
     });
   }, []);
 
@@ -85,19 +89,19 @@ export default function Chatpage() {
       create_by: userName,
       chat: newChat,
     };
-     addChatAPI(chatNewObject);
-     readChatByRoom();
-    await form.resetFields();
-     setComponentDisabled(false);
+    await addChatAPI(chatNewObject);
+    readChatByRoom();
+    form.resetFields();
+    setComponentDisabled(false);
   }
   function handleChangeMenu(items?: any) {
-    const roomKey = items.key
+    const roomKey = items.key;
     setRooms(roomKey);
   }
   function handleLogout() {
-      sessionStorage.clear()
-      router.push(`/login`);
-    }
+    sessionStorage.clear();
+    router.push(`/login`);
+  }
 
   return (
     <Layout className="layout">
