@@ -1,0 +1,30 @@
+.carousel {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  background-color: rgb(225, 225, 225);
+  height: 100vh; /* 100% ของความสูงของหน้า */
+}
+
+.slide {
+  flex: 0 0 100%;
+  transition: opacity 1s;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+.in {
+  opacity: 1;
+  transition: opacity 1s;
+}
+
+.out {
+  opacity: 0;
+  transition: opacity 1s;
+}
