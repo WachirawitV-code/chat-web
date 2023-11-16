@@ -3,9 +3,9 @@ import styles from './ImageCarousel.module.css';
 
 const pageIndex = [
   { id: 0, topic: "Test000" },
-  { id: 1, topic: "Test001" },
+  { id: 1, topic: "Testing001" },
   { id: 2, topic: "Test002" },
-  { id: 3, topic: "Test003" },
+  { id: 3, topic: "Testing003" },
 ];
 
 const ImageCarousel = () => {
